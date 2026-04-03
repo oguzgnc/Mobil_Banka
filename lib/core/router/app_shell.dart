@@ -34,6 +34,12 @@ class AppShell extends StatelessWidget {
       icon: Icons.tune_outlined,
       activeIcon: Icons.tune,
     ),
+    _NavItem(
+      index: 4,
+      label: 'VIP Fırsatlar',
+      icon: Icons.auto_awesome_outlined,
+      activeIcon: Icons.auto_awesome,
+    ),
   ];
 
   @override

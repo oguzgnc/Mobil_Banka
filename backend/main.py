@@ -15,6 +15,7 @@ from mock_data import (
     get_dynamic_risk_map,
     generate_credit_applications,
     process_single_application,
+    generate_intelligent_recommendation,
 )
 
 app = FastAPI(title="Tarımsal Kredi API")
@@ -327,7 +328,12 @@ def get_ai_opportunities(db: Session = Depends(get_db)):
         if not (skor >= 7.0 or durum != "Reddedildi"):
             continue
 
-        onerilen_urun = str(row.Onerilen_Urun or row.Urun1_Adi)
+        # Coğrafi-agronomik zeka: illerine özgü, bilimsel temelli öneri + özet
+        onerilen_urun, ai_neden = generate_intelligent_recommendation(
+            il=str(row.Il or ""),
+            mevcut_urun=str(row.Urun1_Adi or ""),
+        )
+
         opportunities.append(
             {
                 "TCKN": row.TCKN,
@@ -340,7 +346,7 @@ def get_ai_opportunities(db: Session = Depends(get_db)):
                 "Tesvik_Skoru": skor,
                 "Risk_Durumu": row.Risk_Durumu,
                 "Telefon": "Sistemde Kayıtlı",
-                "ai_neden": f"{row.Il} bölgesindeki toprak yapısı ve pazar talebi {onerilen_urun} üretimi için oldukça elverişli. Bu müşteriye özel teşvik paketi sunulabilir.",
+                "ai_neden": ai_neden,
             }
         )
 

@@ -346,6 +346,106 @@ def generate_mock_data() -> pd.DataFrame:
 
 
 # ---------------------------------------------------------------------------
+# Bölgesel Ziraat Bilgi Tabanı — coğrafya ve iklim bazlı akıllı öneri
+# ---------------------------------------------------------------------------
+
+REGIONAL_AGRI_DATA: dict[str, dict] = {
+    "Konya": {
+        "uygun_urunler": ["Buğday", "Şeker Pancarı", "Arpa", "Mısır", "Ayçiçeği", "Nohut"],
+        "ai_karar_sablonu": "Konya bölgesindeki geniş düzlükler ve karasal iklim {urun} üretimi için idealdir. Özellikle yeraltı suları destekli damlama sulama ile yüksek verim hedeflenebilir.",
+    },
+    "Adana": {
+        "uygun_urunler": ["Pamuk", "Narenciye", "Soya Fasulyesi", "Mısır", "Yer Fıstığı"],
+        "ai_karar_sablonu": "Çukurova'nın sıcak Akdeniz iklimi ve alüvyal toprakları {urun} üretimi için yüksek potansiyel barındırır. Erken hasat avantajıyla yüksek kârlılık sağlanabilir.",
+    },
+    "Denizli": {
+        "uygun_urunler": ["Üzüm", "Ceviz", "Pamuk", "Tütün", "Kavun"],
+        "ai_karar_sablonu": "Denizli'nin mikro-klima özellikleri ve geçirgen toprak yapısı {urun} yetiştiriciliği için oldukça elverişlidir. İhracata yönelik teşvik paketi sunulabilir.",
+    },
+    "Malatya": {
+        "uygun_urunler": ["Kayısı", "Buğday", "Şeker Pancarı", "Arpa"],
+        "ai_karar_sablonu": "Malatya'nın gece-gündüz sıcaklık farkları {urun} kalitesini ve aromasını artırıcı etkiye sahiptir. Bu ürüne yönelik uzun vadeli sözleşmeli tarım önerilir.",
+    },
+    "Şanlıurfa": {
+        "uygun_urunler": ["Pamuk", "Mercimek", "Fıstık", "Buğday", "Mısır"],
+        "ai_karar_sablonu": "GAP bölgesi sulama imkanları ve yüksek güneşlenme süresi {urun} rekoltesini maksimize edecektir. Stratejik ürün desteği verilmesi uygundur.",
+    },
+    "Afyonkarahisar": {
+        "uygun_urunler": ["Patates", "Haşhaş", "Şeker Pancarı", "Buğday", "Kiraz"],
+        "ai_karar_sablonu": "Afyon'un serin iklimi ve toprak yapısı {urun} bitkisinin hastalıklardan uzak yetişmesini sağlar. Verimli bir yatırım fırsatıdır.",
+    },
+    "Amasya": {
+        "uygun_urunler": ["Elma", "Soğan", "Şeker Pancarı", "Ayçiçeği"],
+        "ai_karar_sablonu": "Amasya'nın nehir vadilerindeki ılıman geçiş iklimi {urun} için mükemmel ortam sağlar. Bölgesel markalaşma stratejisi ile fonlanabilir.",
+    },
+    "Ankara": {
+        "uygun_urunler": ["Buğday", "Arpa", "Nohut", "Şeker Pancarı"],
+        "ai_karar_sablonu": "Ankara'nın karasal iklim koşullarında {urun} tarımı, uygun rotasyon planlamasıyla stabil bir gelir modeli sunmaktadır.",
+    },
+    "Samsun": {
+        "uygun_urunler": ["Mısır", "Fındık", "Soya Fasulyesi", "Buğday"],
+        "ai_karar_sablonu": "Samsun'un yüksek yağış ve Karadeniz iklimine sahip toprakları {urun} üretimi için çok elverişlidir. Karadeniz ihracat koridorunda pazarlama avantajı sağlanabilir.",
+    },
+    "İzmir": {
+        "uygun_urunler": ["Zeytin", "Üzüm", "İncir", "Tütün", "Pamuk"],
+        "ai_karar_sablonu": "İzmir'in Ege iklimi ve derin alüvyal ovalar {urun} için premium kalite fırsatı sunmaktadır. Organik sertifikasyon ile katma değer artırılabilir.",
+    },
+    "Bursa": {
+        "uygun_urunler": ["Şeftali", "Mısır", "Ayçiçeği", "Buğday", "Kiraz"],
+        "ai_karar_sablonu": "Bursa'nın zengin toprak yapısı ve ılıman iklimi {urun} için ideal koşullar oluşturmaktadır. Yakın pazar erişimi ile lojistik avantaj sağlanabilir.",
+    },
+    "Kütahya": {
+        "uygun_urunler": ["Şeker Pancarı", "Buğday", "Arpa", "Nohut"],
+        "ai_karar_sablonu": "Kütahya'nın yüksek rakımlı platoları ve serin iklimi {urun} yetiştiriciliği için geleneksel olarak uygun bir ortam oluşturmaktadır.",
+    },
+    "Mersin": {
+        "uygun_urunler": ["Narenciye", "Muz", "Buğday", "Susam", "Yer Fıstığı"],
+        "ai_karar_sablonu": "Mersin'in Akdeniz iklimi ve uzun vejetasyon süresi {urun} üretiminde yıl boyu hasat imkânı sunar. Soğuk zincir altyapısıyla ihracat değeri yüksektir.",
+    },
+    "Manisa": {
+        "uygun_urunler": ["Üzüm", "Pamuk", "Buğday", "Zeytin", "Tütün"],
+        "ai_karar_sablonu": "Manisa Ege ovasının derin toprakları ve güneş saatleri {urun} üretiminde Türkiye ortalamasının üzerinde verim sağlar.",
+    },
+    "Diyarbakır": {
+        "uygun_urunler": ["Karpuz", "Buğday", "Arpa", "Pamuk", "Mercimek"],
+        "ai_karar_sablonu": "Diyarbakır'ın kırmızı toprakları ve uzun yazları {urun} tarımı için bölgeye özgü avantajlar sunmaktadır. GAP sulama ağı ile potansiyel daha da artmaktadır.",
+    },
+}
+
+_DEFAULT_REGION: dict[str, object] = {
+    "uygun_urunler": ["Buğday", "Arpa", "Yulaf", "Nohut"],
+    "ai_karar_sablonu": "Bu bölgenin toprak yapısı ve mevcut su kaynakları {urun} üretimi için temel standartları karşılamaktadır.",
+}
+
+_VIP_EKLER: list[str] = [
+    "[Düşük Risk Profili]",
+    "[Yüksek İhracat Potansiyeli]",
+    "[Sözleşmeli Tarım Uygunluğu]",
+    "[Bölgesel Teşvik Avantajı]",
+]
+
+
+def generate_intelligent_recommendation(
+    il: str, mevcut_urun: str | None = None
+) -> tuple[str, str]:
+    """
+    Çiftçinin iline ve mevcut ürününe göre coğrafi-agronomik mantıkla
+    önerilen ürün ve yapay zeka özeti üretir.
+
+    Returns:
+        (oneri_urunu: str, ai_ozeti: str)
+    """
+    bolge = REGIONAL_AGRI_DATA.get(il, _DEFAULT_REGION)
+    uygun: list[str] = bolge["uygun_urunler"]  # type: ignore[assignment]
+    farkli = [u for u in uygun if u != mevcut_urun]
+    oneri_urunu = random.choice(farkli) if farkli else uygun[0]
+
+    sablon: str = bolge["ai_karar_sablonu"]  # type: ignore[assignment]
+    ai_ozeti = f"{random.choice(_VIP_EKLER)} {sablon.format(urun=oneri_urunu)}"
+    return oneri_urunu, ai_ozeti
+
+
+# ---------------------------------------------------------------------------
 # Tek başvuru — arayüzden gelen gerçek veriyi anlık AI analizinden geçirir
 # ---------------------------------------------------------------------------
 

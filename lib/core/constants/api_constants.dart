@@ -15,7 +15,8 @@ abstract final class ApiConstants {
   static const Duration sendTimeout = Duration(seconds: 30);
 
   // Endpoints
-  static const String cksAnalyses   = '/api/cks-analyses';
-  static const String applications  = '/api/applications';
-  static const String marketTrends  = '/api/market-trends';
+  static const String cksAnalyses      = '/api/cks-analyses';
+  static const String applications     = '/api/applications';
+  static const String marketTrends     = '/api/market-trends';
+  static const String aiOpportunities  = '/api/ai-opportunities';
 }
