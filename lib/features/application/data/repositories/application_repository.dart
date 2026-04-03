@@ -1,3 +1,4 @@
+import '../../../../core/constants/api_constants.dart';
 import '../../../../core/network/api_client.dart';
 import '../models/application_model.dart';
 
@@ -5,57 +6,33 @@ class ApplicationRepository {
   final ApiClient _client;
   ApplicationRepository(this._client);
 
-  /// Backend hazır olduğunda: POST /applications
-  /// Şimdilik 2 saniyelik gecikme ile başarılı yanıt simüle eder.
+  /// POST /api/applications
+  /// Body: { TCKN, ad_soyad, Il, Urun1_Adi, Urun1_Alan, sozlesmeli_tarim }
   Future<ApplicationModel> submitApplication(ApplicationModel model) async {
-    await Future.delayed(const Duration(seconds: 2));
+    final response = await _client.dio.post(
+      ApiConstants.applications,
+      data: model.toJson(),
+    );
 
-    // TODO: final response = await _client.dio.post(
-    //   ApiConstants.applications,
-    //   data: model.toJson(),
-    // );
-    // return ApplicationModel.fromJson(response.data as Map<String, dynamic>);
-
+    // Backend kayıtlı nesneyi döndürüyorsa parse et, sadece 201 dönüyorsa fallback
+    if (response.data is Map<String, dynamic>) {
+      return ApplicationModel.fromJson(
+        response.data as Map<String, dynamic>,
+      );
+    }
     return model.copyWith(
-      id: 'APP-${DateTime.now().millisecondsSinceEpoch}',
+      id:              'APP-${DateTime.now().millisecondsSinceEpoch}',
       applicationDate: DateTime.now(),
-      status: 'PENDING',
+      status:          'PENDING',
     );
   }
 
-  /// Backend hazır olduğunda: GET /applications
+  /// GET /api/applications (opsiyonel — başvuru geçmişi için)
   Future<List<ApplicationModel>> getApplications() async {
-    await Future.delayed(const Duration(milliseconds: 1000));
+    final response = await _client.dio.get(ApiConstants.applications);
 
-    // TODO: final response = await _client.dio.get(ApiConstants.applications);
-    // return (response.data as List).map((e) => ApplicationModel.fromJson(e)).toList();
-
-    return [
-      ApplicationModel(
-        id: 'APP-001',
-        tcNo: '11122233344',
-        fullName: 'Osman Güneş',
-        province: 'Diyarbakır',
-        product: 'Buğday',
-        hectares: 48.0,
-        isContractFarming: false,
-        applicationDate: DateTime(2025, 3, 25),
-        status: 'PENDING',
-      ),
-      ApplicationModel(
-        id: 'APP-002',
-        tcNo: '22233344455',
-        fullName: 'Leyla Aydın',
-        province: 'Bursa',
-        product: 'Mısır',
-        hectares: 30.5,
-        isContractFarming: true,
-        applicationDate: DateTime(2025, 3, 26),
-        status: 'UNDER_REVIEW',
-      ),
-    ];
+    return (response.data as List<dynamic>)
+        .map((e) => ApplicationModel.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
-
-  // ignore: unused_field
-  ApiClient get client => _client;
 }

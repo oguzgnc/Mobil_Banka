@@ -6,13 +6,48 @@ part of 'market_settings_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$marketSettingsNotifierHash() =>
-    r'33073f4aa29d3676a4bef68d3004bddd4f0c7c6c';
+String _$marketSettingsRepositoryHash() =>
+    r'a87d1d903bc1a587cad75aba6601ee3d9377fad8';
 
-/// React'taki `useReducer` / Redux reducer mantığının Riverpod karşılığı.
-/// State değişiklikleri immutable liste güncellemesiyle yapılır.
-///
-/// Copied from [MarketSettingsNotifier].
+/// See also [marketSettingsRepository].
+@ProviderFor(marketSettingsRepository)
+final marketSettingsRepositoryProvider =
+    Provider<MarketSettingsRepository>.internal(
+      marketSettingsRepository,
+      name: r'marketSettingsRepositoryProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$marketSettingsRepositoryHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef MarketSettingsRepositoryRef = ProviderRef<MarketSettingsRepository>;
+String _$marketTrendsBaseHash() => r'1ac1a879acf44ebe34ffbe020b0693dbc0377db6';
+
+/// See also [marketTrendsBase].
+@ProviderFor(marketTrendsBase)
+final marketTrendsBaseProvider =
+    AutoDisposeFutureProvider<List<MarketProductModel>>.internal(
+      marketTrendsBase,
+      name: r'marketTrendsBaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$marketTrendsBaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef MarketTrendsBaseRef =
+    AutoDisposeFutureProviderRef<List<MarketProductModel>>;
+String _$marketSettingsNotifierHash() =>
+    r'f2e0c035d490b0508ff064e9ed9996b68ea4c551';
+
+/// See also [MarketSettingsNotifier].
 @ProviderFor(MarketSettingsNotifier)
 final marketSettingsNotifierProvider =
     AutoDisposeNotifierProvider<

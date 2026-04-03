@@ -6,6 +6,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../application/data/models/application_model.dart';
 import '../../../application/domain/providers/application_providers.dart';
+import '../../../dashboard/domain/providers/dashboard_providers.dart';
+import '../../../farmers/domain/providers/farmer_providers.dart';
 
 // ─── Sabitler ─────────────────────────────────────────────────────────────────
 
@@ -45,6 +47,10 @@ class _NewApplicationScreenState extends ConsumerState<NewApplicationScreen> {
   bool _isContractFarming = false;
   bool _isSubmitting = false;
 
+  /// Başlangıçta ve sıfırlamadan sonra disabled → boş form hata göstermez.
+  /// Submit'e basılınca onUserInteraction'a çekilir → canlı geri bildirim başlar.
+  AutovalidateMode _autovalidateMode = AutovalidateMode.disabled;
+
   @override
   void dispose() {
     _tcController.dispose();
@@ -56,6 +62,8 @@ class _NewApplicationScreenState extends ConsumerState<NewApplicationScreen> {
   // ── Submit ──────────────────────────────────────────────────────────────────
 
   Future<void> _submit() async {
+    // Canlı doğrulamayı aç — kullanıcı alanları düzelttikçe hata güncellenir.
+    setState(() => _autovalidateMode = AutovalidateMode.onUserInteraction);
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSubmitting = true);
@@ -71,6 +79,11 @@ class _NewApplicationScreenState extends ConsumerState<NewApplicationScreen> {
       );
 
       await ref.read(applicationRepositoryProvider).submitApplication(model);
+
+      // POST başarılı → cks-analyses verisine dayanan tüm provider'ları
+      // geçersiz kıl; bir sonraki watch'ta otomatik yeniden fetch edilir.
+      ref.invalidate(farmersProvider);
+      ref.invalidate(dashboardKpiProvider);
 
       if (!mounted) return;
 
@@ -102,6 +115,11 @@ class _NewApplicationScreenState extends ConsumerState<NewApplicationScreen> {
   }
 
   void _resetForm() {
+    // 1) Modu disabled'a çek — controller.clear() "kullanıcı etkileşimi"
+    //    sayıldığından, önce modu kapatmazsak boş alanlar hata gösterir.
+    // 2) FormField'ların iç hata/etkileşim geçmişini sıfırla.
+    // 3) Controller'ları temizle ve dropdown/toggle değerlerini geri al.
+    setState(() => _autovalidateMode = AutovalidateMode.disabled);
     _formKey.currentState!.reset();
     _tcController.clear();
     _nameController.clear();
@@ -121,6 +139,7 @@ class _NewApplicationScreenState extends ConsumerState<NewApplicationScreen> {
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
       child: Form(
         key: _formKey,
+        autovalidateMode: _autovalidateMode,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -307,7 +326,6 @@ class _AppFormField extends StatelessWidget {
       keyboardType: keyboardType,
       textCapitalization: textCapitalization,
       inputFormatters: inputFormatters,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
@@ -349,7 +367,6 @@ class _AppDropdownField<T> extends StatelessWidget {
         prefixIcon: Icon(prefixIcon, size: 18),
       ),
       isExpanded: true,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
       items: items,
       onChanged: onChanged,
       validator: validator,

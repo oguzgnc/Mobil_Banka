@@ -52,9 +52,13 @@ class FarmerCard extends StatelessWidget {
                               color: AppColors.textSecondary,
                             ),
                             const SizedBox(width: 2),
-                            Text(
-                              farmer.province,
-                              style: AppTextStyles.bodySmall,
+                            Flexible(
+                              child: Text(
+                                farmer.province,
+                                style: AppTextStyles.bodySmall,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                             const _Dot(),
                             const Icon(
@@ -63,9 +67,13 @@ class FarmerCard extends StatelessWidget {
                               color: AppColors.textSecondary,
                             ),
                             const SizedBox(width: 2),
-                            Text(
-                              farmer.product,
-                              style: AppTextStyles.bodySmall,
+                            Flexible(
+                              child: Text(
+                                farmer.product,
+                                style: AppTextStyles.bodySmall,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                             const _Dot(),
                             Text(

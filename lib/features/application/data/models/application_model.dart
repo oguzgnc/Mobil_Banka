@@ -1,4 +1,5 @@
-/// Yeni başvuru formu gönderimi ve başvuru listesi için kullanılan model.
+/// Yeni başvuru formu → POST /api/applications payload'ı
+/// Python API key uyumu: TCKN, ad_soyad, Il, Urun1_Adi, Urun1_Alan, sozlesmeli_tarim
 class ApplicationModel {
   final String? id;
   final String tcNo;
@@ -22,36 +23,41 @@ class ApplicationModel {
     this.status,
   });
 
+  // ── Python FastAPI key mapping ────────────────────────────────────────────
+  //   TCKN             → tcNo
+  //   ad_soyad         → fullName
+  //   Il               → province
+  //   Urun1_Adi        → product
+  //   Urun1_Alan       → hectares
+  //   sozlesmeli_tarim → isContractFarming
+  // ──────────────────────────────────────────────────────────────────────────
   factory ApplicationModel.fromJson(Map<String, dynamic> json) {
     return ApplicationModel(
-      id: json['id'] as String?,
-      tcNo: json['tc_no'] as String,
-      fullName: json['full_name'] as String,
-      province: json['province'] as String,
-      product: json['product'] as String,
-      hectares: (json['hectares'] as num).toDouble(),
-      isContractFarming: json['is_contract_farming'] as bool,
-      applicationDate: json['application_date'] != null
-          ? DateTime.parse(json['application_date'] as String)
+      id:                json['id']?.toString(),
+      tcNo:              json['TCKN']            as String? ?? '',
+      fullName:          json['ad_soyad']         as String? ?? '',
+      province:          json['Il']               as String? ?? '',
+      product:           json['Urun1_Adi']        as String? ?? '',
+      hectares:          (json['Urun1_Alan']       as num?)?.toDouble() ?? 0.0,
+      isContractFarming: _parseBool(json['sozlesmeli_tarim']),
+      applicationDate:   json['basvuru_tarihi'] != null
+          ? DateTime.tryParse(json['basvuru_tarihi'] as String)
           : null,
-      status: json['status'] as String?,
+      status:            json['onay_durumu']      as String?
+                      ?? json['status']           as String?,
     );
   }
 
+  /// POST body — Python API'nin beklediği key'ler ile
   Map<String, dynamic> toJson() => {
-        if (id != null) 'id': id,
-        'tc_no': tcNo,
-        'full_name': fullName,
-        'province': province,
-        'product': product,
-        'hectares': hectares,
-        'is_contract_farming': isContractFarming,
-        if (applicationDate != null)
-          'application_date': applicationDate!.toIso8601String(),
-        if (status != null) 'status': status,
+        'TCKN':            tcNo,
+        'ad_soyad':        fullName,
+        'Il':              province,
+        'Urun1_Adi':       product,
+        'Urun1_Alan':      hectares,
+        'sozlesmeli_tarim': isContractFarming,
       };
 
-  /// Form'dan yeni başvuru oluştururken kullanılır (id ve tarih olmadan)
   ApplicationModel copyWith({
     String? id,
     String? tcNo,
@@ -64,15 +70,22 @@ class ApplicationModel {
     String? status,
   }) {
     return ApplicationModel(
-      id: id ?? this.id,
-      tcNo: tcNo ?? this.tcNo,
-      fullName: fullName ?? this.fullName,
-      province: province ?? this.province,
-      product: product ?? this.product,
-      hectares: hectares ?? this.hectares,
+      id:                id               ?? this.id,
+      tcNo:              tcNo             ?? this.tcNo,
+      fullName:          fullName         ?? this.fullName,
+      province:          province         ?? this.province,
+      product:           product          ?? this.product,
+      hectares:          hectares         ?? this.hectares,
       isContractFarming: isContractFarming ?? this.isContractFarming,
-      applicationDate: applicationDate ?? this.applicationDate,
-      status: status ?? this.status,
+      applicationDate:   applicationDate  ?? this.applicationDate,
+      status:            status           ?? this.status,
     );
+  }
+
+  static bool _parseBool(dynamic v) {
+    if (v == null) return false;
+    if (v is bool) return v;
+    if (v is int) return v == 1;
+    return v.toString().toLowerCase() == 'true' || v.toString() == '1';
   }
 }
